@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\payment\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('payment');
+});
+Route::group(['prefix' => 'payments'], function () {
+    Route::get('/', [PaymentController::class, 'index']);
 });
