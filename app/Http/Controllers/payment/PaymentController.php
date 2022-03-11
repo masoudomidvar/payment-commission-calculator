@@ -4,6 +4,7 @@ namespace App\Http\Controllers\payment;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePaymentRequest;
+use App\Http\Controllers\file\FileController;
 
 class PaymentController extends Controller
 {
@@ -25,6 +26,8 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
     {
-        
+        $path = "payment/";
+        $fileUploaded = FileController::uploadFile($request->validated()['file'], $path);
+        FileController::deleteFile($fileUploaded);
     }
 }
