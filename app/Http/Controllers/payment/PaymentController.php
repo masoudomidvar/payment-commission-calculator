@@ -5,6 +5,7 @@ namespace App\Http\Controllers\payment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Controllers\file\FileController;
+use App\Http\Controllers\file\CsvController;
 
 class PaymentController extends Controller
 {
@@ -28,6 +29,9 @@ class PaymentController extends Controller
     {
         $path = "payment/";
         $fileUploaded = FileController::uploadFile($request->validated()['file'], $path);
+        $csvData = (new CsvController)->read($fileUploaded);
+        $commissions = (new CommissionController)->calculateCommission($csvData);
+        var_dump($commissions);
         FileController::deleteFile($fileUploaded);
     }
 }
