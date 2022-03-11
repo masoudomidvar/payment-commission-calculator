@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\payment;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\StorePaymentRequest;
 
 class PaymentController extends Controller
 {
@@ -15,5 +15,16 @@ class PaymentController extends Controller
     public function index()
     {
         return view('payment');
+    }
+
+    /**
+     * Receive a payment list with a CSV file.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(StorePaymentRequest $request)
+    {
+        
     }
 }
