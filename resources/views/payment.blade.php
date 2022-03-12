@@ -13,6 +13,8 @@
         <div class="card">
             <div class="card-header text-center font-weight-bold">
                 Payment Commission Calculator
+                <br>
+                Masoud Omidvar Rouzbahani
             </div>
             @if(Session::has('success'))
             <div class="alert alert-success">
