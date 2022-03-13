@@ -83,7 +83,7 @@ class CommissionController extends Controller
                 ],
                 '*.amount' => [
                     'required',
-                    'int',
+                    'numeric',
                     'min:1'
                 ],
                 '*.currency' => [
@@ -155,7 +155,8 @@ class CommissionController extends Controller
                                 $amount = $weeklyWithdrawAmount - $commissionFreeAmount;
                                 $amount = $this->convertEuroToCurrency($amount, $payment['currency']);
                             }
-                            $data[$payment['key']]['commission'] = ($amount / 100) * $CommissionRate;
+                            $decimalPlaces = strlen(substr(strrchr($payment['amount'], "."), 1));
+                            $data[$payment['key']]['commission'] = $this->roundUp(($amount / 100) * $CommissionRate, $decimalPlaces-1);
                             break;
                     }
                     break;
@@ -191,10 +192,6 @@ class CommissionController extends Controller
     {
         if ($currency === 'EUR')
             return $amount;
-        elseif ($currency === 'JPY')
-            return $amount / 129.53;
-        elseif ($currency === 'USD')
-            return $amount / 1.1497;
         return $amount / $this->currencyRates[$currency];
     }
 
@@ -202,10 +199,12 @@ class CommissionController extends Controller
     {
         if ($currency === 'EUR')
             return $amount;
-        elseif ($currency === 'JPY')
-            return $amount * 129.53;
-        elseif ($currency === 'USD')
-            return $amount * 1.1497;
         return $amount * $this->currencyRates[$currency];
+    }
+
+    public function roundUp($number, $decimalPlaces) {
+        if ($decimalPlaces <= 0)
+            return ceil($number);
+        return round($number, $decimalPlaces);
     }
 }

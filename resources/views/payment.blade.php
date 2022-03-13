@@ -44,6 +44,16 @@
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
+            <div class="card-body">
+                @if (session('commissions'))
+                    <p><b>Results:</b></p>
+                    <div class="alert alert-'success'">
+                        @foreach (session('commissions') as $commission)
+                            <span>{{ $commission }}</span><br>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </body>

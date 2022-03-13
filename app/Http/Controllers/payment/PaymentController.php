@@ -30,12 +30,13 @@ class PaymentController extends Controller
         $path = "payment/";
         $fileUploaded = FileController::uploadFile($request->validated()['file'], $path);
         $csvData = (new CsvController)->read($fileUploaded);
-        $commissions = (new CommissionController)->calculateCommission($csvData);
-        echo "<br><br><br>";
-        foreach ($commissions as $commission)
+        $payments = (new CommissionController)->calculateCommission($csvData);
+        $commissions = [];
+        foreach ($payments as $payment)
         {
-            echo $commission['commission']."<br>";
+            array_push($commissions, $payment['commission']);
         }
         FileController::deleteFile($fileUploaded);
+        return redirect()->back()->with('commissions', $commissions);
     }
 }
