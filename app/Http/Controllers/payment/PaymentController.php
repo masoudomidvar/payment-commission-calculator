@@ -32,6 +32,11 @@ class PaymentController extends Controller
         $csvData = (new CsvController)->read($fileUploaded);
         $commissions = (new CommissionController)->calculateCommission($csvData);
         var_dump($commissions);
+        echo "<br><br><br>";
+        foreach ($commissions as $commission)
+        {
+            echo $commission['commission']."<br>";
+        }
         FileController::deleteFile($fileUploaded);
     }
 }

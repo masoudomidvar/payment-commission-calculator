@@ -15,8 +15,9 @@ use App\Http\Controllers\payment\PaymentController;
 */
 
 Route::get('/', function () {
-    return view('payment');
+    return redirect('/payments');
 });
+
 Route::group(['prefix' => 'payments'], function () {
     Route::get('/', [PaymentController::class, 'index']);
     Route::post('/', [PaymentController::class, 'store']);

@@ -26,8 +26,6 @@ return [
     'withdraw' => [
         'business' => [
             'commission' => 0.5,
-            'weekFreeAmount' => 0,
-            'weekFreeLimit' => 0,
         ],
         'private' => [
             'commission' => 0.3,
@@ -36,6 +34,6 @@ return [
         ],
     ],
     
-
+    'currencyRateSource' => 'https://developers.paysera.com/tasks/api/currency-exchange-rates',
 
 ];
