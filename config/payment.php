@@ -29,8 +29,8 @@ return [
         ],
         'private' => [
             'commission' => 0.3,
-            'weekFreeAmount' => 1000,
-            'weekFreeLimit' => 3,
+            'commissionFreeAmount' => 1000,
+            'commissionFreeLimit' => 3,
         ],
     ],
     

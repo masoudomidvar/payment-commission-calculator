@@ -119,37 +119,43 @@ class CommissionController extends Controller
 
         $weeklyWithdrawAmount = 0;
         $weeklyWithdraws = 0;
+        $commissionFreeAmountDeducted = false;
+        $commissionFreeAmount = $this->config['withdraw']['private']['commissionFreeAmount'];
+        $commissionFreeLimit = $this->config['withdraw']['private']['commissionFreeLimit'];
 
         foreach ($userPayments as $payment) {
-            var_dump($week);
             $CommissionRate = $this->config[$payment['operationType']][$payment['userType']]['commission'];
+            $amount = $payment['amount'];
 
             switch ($payment['operationType']) {
                 case "deposit":
-                    $data[$payment['key']]['commission'] = ($payment['amount'] / 100) * $CommissionRate;
+                    $data[$payment['key']]['commission'] = ($amount / 100) * $CommissionRate;
                     break;
                 case "withdraw":
                     switch ($payment['userType']) {
                         case "business":
-                            $data[$payment['key']]['commission'] = ($payment['amount'] / 100) * $CommissionRate;
+                            $data[$payment['key']]['commission'] = ($amount / 100) * $CommissionRate;
                             break;
                         case "private":
-                            $date = Carbon::createFromDate($payment['date']);
+                            $date = Carbon::createFromDate($payment['date'])->format('Y-m-d');
+                            $currencyToEuro = $this->convertCurrencyToEuro($amount, $payment['currency']);
                             if (($date >= $week['start']) && ($date <= $week['end'])) {
                                 $weeklyWithdraws++;
-                                $weeklyWithdrawAmount += $payment['amount'];
-                                echo "here<br>";
+                                $weeklyWithdrawAmount += $currencyToEuro;
                             }
                             else {
-                                $weeklyWithdrawAmount = $payment['amount'];
+                                $weeklyWithdrawAmount = $currencyToEuro;
                                 $weeklyWithdraws = 1;
                                 $week = $this->defineWeek($payment['date']);
-                                echo "not here<br>";
                             }
-                            if ($weeklyWithdrawAmount <= 1000 && $weeklyWithdraws <= 3) {
+                            if ($weeklyWithdrawAmount <= $commissionFreeAmount && $weeklyWithdraws <= $commissionFreeLimit) {
                                 $CommissionRate = 0;
+                            } elseif ($weeklyWithdraws <= $commissionFreeLimit && $commissionFreeAmountDeducted == false) {
+                                $commissionFreeAmountDeducted = true;
+                                $amount = $weeklyWithdrawAmount - $commissionFreeAmount;
+                                $amount = $this->convertEuroToCurrency($amount, $payment['currency']);
                             }
-                            $data[$payment['key']]['commission'] = ($payment['amount'] / 100) * $CommissionRate;
+                            $data[$payment['key']]['commission'] = ($amount / 100) * $CommissionRate;
                             break;
                     }
                     break;
@@ -181,8 +187,25 @@ class CommissionController extends Controller
         return $week;
     }
 
-    private function getCurrencyRate ($currency)
+    private function convertCurrencyToEuro ($amount, $currency)
     {
-        return $this->currencyRates[$currency];
+        if ($currency === 'EUR')
+            return $amount;
+        elseif ($currency === 'JPY')
+            return $amount / 129.53;
+        elseif ($currency === 'USD')
+            return $amount / 1.1497;
+        return $amount / $this->currencyRates[$currency];
+    }
+
+    private function convertEuroToCurrency ($amount, $currency)
+    {
+        if ($currency === 'EUR')
+            return $amount;
+        elseif ($currency === 'JPY')
+            return $amount * 129.53;
+        elseif ($currency === 'USD')
+            return $amount * 1.1497;
+        return $amount * $this->currencyRates[$currency];
     }
 }
