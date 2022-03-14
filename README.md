@@ -1,64 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Payment Commission Calculator
 
-## About Laravel
+## Description
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This is a simple web application for calculating commissions of different users' payments by certain rules which is written by the latest version of Laravel framework (9 at the moment).
+The commission is calculated differently based on user type, operation type, weekly withdraw counts, weekly withdraw amount and etc. These payment records are given to the application by a CSV file. Then certain validations are done to assure that application receives proper values. Finally commissions for each record is calculated and displayed to the endpoint user.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP >= 8.0
+- Composer
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Clone the repository
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    git clone git@github.com:masoudomidvar/payment-commision-calculator.git
 
-## Laravel Sponsors
+Switch to the repo folder
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+    cd payment-commision-calculator
 
-### Premium Partners
+Install all the dependencies using composer
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+    composer install
 
-## Contributing
+Copy the example env file and make the required configuration changes in the .env file
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+	cp .env.example .env
 
-## Code of Conduct
+Generate a new application key
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+	php artisan key:generate
 
-## Security Vulnerabilities
+Start the local development server
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+	php artisan serve
 
-## License
+You can now access the server at [http://localhost:8000](http://localhost:8000/)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+***Note*** : This project does not require any database connection.
+
+## Config
+
+- `config/payment.php`
+This file contains all the configurations used in the application. Please keep in mind that if you decided to change any of the defined values, do not forget to run below command:
+	php artisan config:cache
+	
+
+## Test
+
+In order to test the application please run below command
+
+	php artisan test
+
+If the tests pass you will see a mark named PASS beside the test otherwise FAIL is displayed.
+
+
+## Code overview
+
+
+### Main Files
+
+- `app/Http/Controllers/payment/PaymentController` - Contains index and store methods to show and receive payment respectively.
+- `App/Http/Requests/StorePaymentRequest` - Contains validation of the input which is a CSV file. It is used in PaymentController store method.
+- `app/Http/Controllers/payment/CommissionController` - Contains all the related methods to calculate commissions. In this Controller data inside the CSV file is also validated.
+- `app/Http/Controllers/file/FileController` - Contains methods to handle a uploaded file like saving and deleting the file.
+- `app/Http/Controllers/file/CsvController` - Contains methods to read the CSV file.
+- `config/payment.php` - Contains all the configurations used in the app.
+- `routes/web.php` - Contains all the web defined routes
+- `tests` - Contains all the application tests
+
+### Environment variables
+
+- `.env` - Environment variables can be set in this file
+
+
+----------
