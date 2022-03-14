@@ -16,13 +16,13 @@ class FileController extends Controller
         return $path.$filename;
     }
 
-    static function getImgWithoutURL ($url) {
+    static function getFileWithoutURL ($url) {
         return Str::after($url, '/storage');
     }
 
     static function deleteFile ($path)
     {
-        $path = self::getImgWithoutURL($path);
+        $path = self::getFileWithoutURL($path);
         if ($path != "users/default.png")
             Storage::disk('public')->delete($path);
     }
