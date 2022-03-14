@@ -8,14 +8,23 @@ use Carbon\Carbon;
 
 class CommissionController extends Controller
 {
-    public function __construct()
+    public function __construct($test)
     {
+        // test parameter is to detect if the class is used in an automation test
+        $this->test = $test;
         $this->config = config('payment');
         $this->weeklyWithdrawAmount = 0;
         $this->weeklyWithdrawCount = 0;
         $this->currencyRates = json_decode(file_get_contents(config('payment.currencyRateSource')), true)['rates'];
     }
 
+    /**
+     * Main method in CommissionController class to calculate commissions
+     *
+     * @param  Array  $csvData
+     * @param  Boolean  $test
+     * @return Array $csvData containing commissions in each record
+     */
     public function calculateCommission ($csvData)
     {
         $data = $this->labelCsvData($csvData);
@@ -88,6 +97,7 @@ class CommissionController extends Controller
                 ],
                 '*.currency' => [
                     'required',
+                    // This function checks if currency is supported and is in the list based on currencyRateSource
                     function ($attribute, $value, $fail) use ($currencyRates) {
                         if (!isset($currencyRates[$value]))
                             $fail("The $value currency is not supported.");
@@ -98,7 +108,7 @@ class CommissionController extends Controller
     }
 
     /**
-     * group data by user id.
+     * group data by user id to check each user payments individually
      *
      * @param  Array  $labeledData
      * @return Array
@@ -110,11 +120,19 @@ class CommissionController extends Controller
             ->toArray();
     }
 
+    /**
+     * This method calculates each user's payment commissions individually and puts the commission in the main array
+     *
+     * @param  Array  $data => main array
+     * @param  Array  $userPayments => a user payments
+     * @return Array  $data => updated main array
+     */
     public function calculateUserCommissions ($data, $userPayments)
     {
         // Sort user payments by date ascending
         $userPayments = $this->sortUserPaymentsByDate($userPayments);
 
+        // detect start and end of the week based on first payment
         $week = $this->defineWeek($userPayments[0]['date']);
 
         $weeklyWithdrawAmount = 0;
@@ -123,6 +141,7 @@ class CommissionController extends Controller
         $commissionFreeAmount = $this->config['withdraw']['private']['commissionFreeAmount'];
         $commissionFreeLimit = $this->config['withdraw']['private']['commissionFreeLimit'];
 
+        // loop through each payment and calculate commission
         foreach ($userPayments as $payment) {
             $CommissionRate = $this->config[$payment['operationType']][$payment['userType']]['commission'];
             $amount = $payment['amount'];
@@ -139,23 +158,30 @@ class CommissionController extends Controller
                         case "private":
                             $date = Carbon::createFromDate($payment['date'])->format('Y-m-d');
                             $currencyToEuro = $this->convertCurrencyToEuro($amount, $payment['currency']);
+
+                            // check if payment is in the current week or not
                             if (($date >= $week['start']) && ($date <= $week['end'])) {
                                 $weeklyWithdraws++;
                                 $weeklyWithdrawAmount += $currencyToEuro;
-                            }
-                            else {
+                            } else {
                                 $weeklyWithdrawAmount = $currencyToEuro;
                                 $weeklyWithdraws = 1;
                                 $week = $this->defineWeek($payment['date']);
                             }
+                            
+                            // check if weeklyWithdrawAmount and weeklyWithdraws are not met yet
                             if ($weeklyWithdrawAmount <= $commissionFreeAmount && $weeklyWithdraws <= $commissionFreeLimit) {
                                 $CommissionRate = 0;
                             } elseif ($weeklyWithdraws <= $commissionFreeLimit && $commissionFreeAmountDeducted == false) {
+                                // The first time commissionFreeAmount is deducted from the weeklyWithdrawAmount
                                 $commissionFreeAmountDeducted = true;
                                 $amount = $weeklyWithdrawAmount - $commissionFreeAmount;
                                 $amount = $this->convertEuroToCurrency($amount, $payment['currency']);
                             }
+
+                            // detect decimal places
                             $decimalPlaces = strlen(substr(strrchr($payment['amount'], "."), 1));
+                            // round up commission and update main data array
                             $data[$payment['key']]['commission'] = $this->roundUp(($amount / 100) * $CommissionRate, $decimalPlaces-1);
                             break;
                     }
@@ -165,6 +191,12 @@ class CommissionController extends Controller
         return $data;
     }
 
+    /**
+     * This method sorts user payments in ascending order in case the csv records are not sorted
+     * This is done to detect payments occured in one week
+     * @param  Array  $userPayments
+     * @return Array  $userPayments => sorted user payments ascending
+     */
     public function sortUserPaymentsByDate ($userPayments)
     {
         usort($userPayments, function($a, $b) {
@@ -188,21 +220,62 @@ class CommissionController extends Controller
         return $week;
     }
 
-    private function convertCurrencyToEuro ($amount, $currency)
+    /**
+     * Convert entered currency to Euro.
+     *
+     * @param  Float  $amount
+     * @param  String  $currency
+     * @return Float
+     */
+    public function convertCurrencyToEuro ($amount, $currency)
     {
         if ($currency === 'EUR')
             return $amount;
-        return $amount / $this->currencyRates[$currency];
+        return $amount / $this->getCurrencyRate($currency);
     }
 
-    private function convertEuroToCurrency ($amount, $currency)
+    /**
+     * Convert Euro to entered Currency.
+     *
+     * @param  Float  $amount
+     * @param  String  $currency
+     * @return Float
+     */
+    public function convertEuroToCurrency ($amount, $currency)
     {
         if ($currency === 'EUR')
             return $amount;
-        return $amount * $this->currencyRates[$currency];
+        return $amount * $this->getCurrencyRate($currency);
     }
 
-    public function roundUp($number, $decimalPlaces) {
+    /**
+     * Get currency rate based on provided URL.
+     * if test is running defined values for certain currencies are returned.
+     *
+     * @param  String  $currency
+     * @return Float
+     */
+    public function getCurrencyRate ($currency)
+    {
+        if ($this->test)
+            switch ($currency) {
+                case "JPY":
+                    return "129.53";
+                case "USD":
+                    return "1.1497";
+            }
+        return $this->currencyRates[$currency];
+    }
+
+    /**
+     * Round the commission to currency's decimal places.
+     *
+     * @param  Float  $number
+     * @param  Int  $decimalPlaces
+     * @return Float
+     */
+    public function roundUp($number, $decimalPlaces)
+    {
         if ($decimalPlaces <= 0)
             return ceil($number);
         return round($number, $decimalPlaces);

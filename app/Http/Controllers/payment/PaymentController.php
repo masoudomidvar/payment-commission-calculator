@@ -22,8 +22,8 @@ class PaymentController extends Controller
     /**
      * Receive a payment list with a CSV file.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\StorePaymentRequest  $request
+     * @return redirect to payments page
      */
     public function store(StorePaymentRequest $request)
     {
@@ -31,12 +31,20 @@ class PaymentController extends Controller
         return redirect()->back()->with('commissions', $commissions);
     }
 
-    public function getPaymentCommissions ($request)
+    /**
+     * Commission calculation starts from this method. This method
+     * PaymentCommissionCalculatorTest calls this method
+     *
+     * @param  \Illuminate\Http\StorePaymentRequest  $request
+     * @param  Boolean  $test
+     * @return Array $commissions
+     */
+    public function getPaymentCommissions ($request, $test=false)
     {
         $path = "payment/";
         $fileUploaded = FileController::uploadFile($request['file'], $path);
         $csvData = (new CsvController)->read($fileUploaded);
-        $payments = (new CommissionController)->calculateCommission($csvData);
+        $payments = (new CommissionController($test))->calculateCommission($csvData, $test);
         $commissions = [];
         foreach ($payments as $payment)
         {

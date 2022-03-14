@@ -18,8 +18,8 @@ class PaymentCommissionCalculatorTest extends TestCase
     public function test_payment_commissions_calculated_successfully()
     {
         $request = $this->createStorePaymentRequest(public_path('test.csv'));
-        $response = (new PaymentController)->getPaymentCommissions($request);
-        $expectedResponse = [0.6,3,0,0.06,1.5,0,0.7,0.3,0.3,3,0,0,8608];
+        $response = (new PaymentController)->getPaymentCommissions($request, true);
+        $expectedResponse = [0.6,3,0,0.06,1.5,0,0.7,0.3,0.3,3,0,0,8612];
         $this->assertTrue($response == $expectedResponse);
     }
 
