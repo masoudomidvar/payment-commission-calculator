@@ -10,7 +10,8 @@ class FileController extends Controller
 {
     static function uploadFile ($file, $path)
     {
-        $filename = self::generateFileName($path, $file->getClientOriginalExtension());
+        $extension = $file->getClientOriginalExtension() ? $file->getClientOriginalExtension() : "csv";
+        $filename = self::generateFileName($path, $extension);
         Storage::disk('public')->put($path.$filename, file_get_contents($file));
         return $path.$filename;
     }

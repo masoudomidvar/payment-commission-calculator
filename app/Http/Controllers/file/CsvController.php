@@ -11,7 +11,7 @@ class CsvController extends Controller
     {
         $payment = [];
         if (($open = fopen(public_path()."/storage/".$csvFile, "r")) !== FALSE) {
-            while (($data = fgetcsv($open, 1000, ",")) !== FALSE) {
+            while (($data = fgetcsv($open)) !== FALSE) {
                 $payment[] = $data;
             }
             fclose($open);

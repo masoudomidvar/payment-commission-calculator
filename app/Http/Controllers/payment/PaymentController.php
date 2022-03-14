@@ -27,8 +27,14 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
     {
+        $commissions = $this->getPaymentCommissions($request);
+        return redirect()->back()->with('commissions', $commissions);
+    }
+
+    public function getPaymentCommissions ($request)
+    {
         $path = "payment/";
-        $fileUploaded = FileController::uploadFile($request->validated()['file'], $path);
+        $fileUploaded = FileController::uploadFile($request['file'], $path);
         $csvData = (new CsvController)->read($fileUploaded);
         $payments = (new CommissionController)->calculateCommission($csvData);
         $commissions = [];
@@ -37,6 +43,6 @@ class PaymentController extends Controller
             array_push($commissions, $payment['commission']);
         }
         FileController::deleteFile($fileUploaded);
-        return redirect()->back()->with('commissions', $commissions);
+        return $commissions;
     }
 }
