@@ -48,8 +48,8 @@ You can now access the server at [http://localhost:8000](http://localhost:8000/)
 ## Config
 
 - `config/payment.php`
-This file contains all the configurations used in the application. Please keep in mind that if you decided to change any of the defined values, do not forget to run below command:
-	php artisan config:cache
+This file contains all the configurations used in the application. Please keep in mind that if you decided to change any of the defined values, do not forget to run following command:
+php artisan config:cache
 
 
 ## Code overview
@@ -57,14 +57,14 @@ This file contains all the configurations used in the application. Please keep i
 
 ### Main Files
 
-- `app/Http/Controllers/payment/PaymentController` - Contains index and store methods to show and receive payment respectively.
-- `App/Http/Requests/StorePaymentRequest` - Contains validation of the input which is a CSV file. It is used in PaymentController store method.
-- `app/Http/Controllers/payment/CommissionController` - Contains all the related methods to calculate commissions. In this Controller data inside the CSV file is also validated.
-- `app/Http/Controllers/file/FileController` - Contains methods to handle a uploaded file like saving and deleting the file.
-- `app/Http/Controllers/file/CsvController` - Contains methods to read the CSV file.
+- `app/Http/Controllers/payment/PaymentController.php` - Contains index and store methods to show and receive payment respectively.
+- `App/Http/Requests/StorePaymentRequest.php` - Contains validation of the input which is a CSV file. It is used in PaymentController store method.
+- `app/Http/Controllers/payment/CommissionController.php` - Contains all the related methods to calculate commissions. In this Controller data inside the CSV file is also validated.
+- `app/Http/Controllers/file/FileController.php` - Contains methods to handle a uploaded file like saving and deleting the file.
+- `app/Http/Controllers/file/CsvController.php` - Contains methods to read the CSV file.
 - `config/payment.php` - Contains all the configurations used in the app.
 - `routes/web.php` - Contains all the web defined routes
-- `tests/Feature/Payment/PaymentCommissionCalculatorTest` - Contains the related test for Payment Commission Calculation
+- `tests/Feature/Payment/PaymentCommissionCalculatorTest.php` - Contains the related test for Payment Commission Calculation
 
 ### Environment variables
 
@@ -79,7 +79,7 @@ In order to test the application please run below command
 
 If the tests pass you will see a mark named PASS beside the test otherwise FAIL is displayed.
 
-- `tests/Feature/Payment/PaymentCommissionCalculatorTest` - Contains the related test for Payment Commission Calculation
+- `tests/Feature/Payment/PaymentCommissionCalculatorTest.php` - Contains the related test for Payment Commission Calculation
 
 
 ## Contact
