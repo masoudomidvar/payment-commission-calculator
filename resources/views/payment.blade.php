@@ -12,9 +12,13 @@
     <div class="container mt-4">
         <div class="card">
             <div class="card-header text-center font-weight-bold">
-                Payment Commission Calculator
+                <h1>Payment Commission Calculator</h1>
                 <br>
-                Masoud Omidvar Rouzbahani
+                <h3>Masoud Omidvar Rouzbahani</h3>
+                <br>
+                masoudomidvar7@gmail.com
+                <br>
+                +989122139474
             </div>
             @if(Session::has('success'))
             <div class="alert alert-success">
