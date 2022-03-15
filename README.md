@@ -33,6 +33,10 @@ Generate a new application key
 
 	php artisan key:generate
 
+Create a symbolic link for storage in public folder
+
+	php artisan storage:link
+
 Start the local development server
 
 	php artisan serve
